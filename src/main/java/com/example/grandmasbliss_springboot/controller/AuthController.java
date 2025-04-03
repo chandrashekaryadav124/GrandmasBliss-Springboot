@@ -16,13 +16,22 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> userData) {
-        String response = authService.registerUser(userData.get("username"), userData.get("email"), userData.get("password"));
+        String response = authService.registerUser(
+                userData.get("username"),
+                userData.get("email"),
+                userData.get("password")
+        );
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
-        String token = authService.authenticateUser(loginData.get("email"), loginData.get("password"));
-        return ResponseEntity.ok(Map.of("token", token));
+        try {
+            String token = authService.authenticateUser(loginData.get("email"), loginData.get("password"));
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (RuntimeException e) {
+            // Log the exception (optional)
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+        }
     }
 }
